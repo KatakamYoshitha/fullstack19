@@ -1,0 +1,75 @@
+/* --------------------
+   GLOBAL RESET
+-------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #f5f8f3;
+  color: #3f4a3a;
+}
+
+/* --------------------
+   LAYOUT
+-------------------- */
+section {
+  padding: 20px 40px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+/* --------------------
+   HEADINGS
+-------------------- */
+h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+/* --------------------
+   FORMS
+-------------------- */
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #c8d8c0;
+  margin-bottom: 10px;
+}
+
+button {
+  padding: 12px 20px;
+  background: #8acb76;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #7fbd68;
+}
+
+/* --------------------
+   CARDS
+-------------------- */
+.card {
+  background: white;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
