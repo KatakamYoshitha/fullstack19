@@ -135,7 +135,7 @@ const handleSignup = async (e) => {
   const password = e.target.password.value;
   const role = "student";
 
-  await fetch("https://your-railway-backend-url.up.railway.app/api/users", {
+  await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/users", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -172,7 +172,7 @@ const handleLogin = async (e) => {
   }
 
   // Student login
-  const res = await fetch("https://your-railway-backend-url.up.railway.app/api/users");
+  const res = await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/users");
   const users = await res.json();
 
   const foundUser = users.find(
