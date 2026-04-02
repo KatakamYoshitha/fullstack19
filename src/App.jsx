@@ -5,7 +5,6 @@ import img from "./assets/img.jpg";
 import MazeGame from "./MazeGame";
 import DinoGame from "./DinoGame";
 import TicTacToe from "./TicTacToe";
-import QuizComponent from "./QuizComponent";
 
 
 function App() {
@@ -16,7 +15,7 @@ function App() {
 
   const [activeSection, setActiveSection] = useState(currentUser ? "home" : "login");
   const [isSignup, setIsSignup] = useState(false);
-
+  const [passwordStrength, setPasswordStrength] = useState("");
   const [resources, setResources] = useState([
     {
       title: "Mindful Breathing",
@@ -34,18 +33,6 @@ function App() {
       description: "A simple guide to starting meditation."
     }
   ]);
-  const [quizQuestions, setQuizQuestions] = useState([
-  {
-    question: "What is the best way to reduce stress quickly?",
-    options: ["Deep breathing", "Scrolling Instagram", "Skipping meals"],
-    answer: "Deep breathing"
-  },
-  {
-    question: "How many hours of sleep should a student get?",
-    options: ["3–4", "5–6", "7–9"],
-    answer: "7–9"
-  }
-]);
 
   const [programs, setPrograms] = useState([
     {
@@ -69,7 +56,19 @@ function App() {
       description: "Improve emotional resilience before exams."
     }
   ]);
-
+   const checkPasswordStrength = (password) => {
+  if (password.length < 6) {
+    setPasswordStrength("Weak");
+  } else if (
+    password.length >= 6 &&
+    /[A-Z]/.test(password) &&
+    /[0-9]/.test(password)
+  ) {
+    setPasswordStrength("Strong");
+  } else {
+    setPasswordStrength("Medium");
+  }
+};
   const [articles, setArticles] = useState([
     {
       title: "How to Reduce Exam Stress",
@@ -103,71 +102,98 @@ function App() {
   };
    
   /* -------------------- CHATBOT SCRIPT -------------------- */
-  /*useEffect(() => {
-    if (activeSection === "chat") {
-      const existing = document.getElementById("noupe-script");
-      if (existing) return;
+  useEffect(() => {
+  if (activeSection === "chat") {
 
-      const script = document.createElement("script");
-      script.src =
-        "https://www.noupe.com/embed/019acec8c5da71fbb53af7c328bce7e1135e.js";
-      script.id = "noupe-script";
-      script.async = true;
-      document.body.appendChild(script);
-    }
-  }, [activeSection]);*/
+    const container = document.getElementById("noupe-chat-container");
+    if (!container) return;
+
+    const existing = document.getElementById("noupe-script");
+    if (existing) return;
+
+    // Tell Noupe to render inside this container
+    window.noupeConfig = {
+      target: "#noupe-chat-container"
+    };
+
+    const script = document.createElement("script");
+    script.src = "https://www.noupe.com/embed/019acec8c5da71fbb53af7c328bce7e1135e.js";
+    script.id = "noupe-script";
+    script.async = true;
+
+    document.body.appendChild(script);
+  }
+}, [activeSection]);
 
   /* -------------------- SIGNUP -------------------- */
-  const handleSignup = (e) => {
-    e.preventDefault();
+  /* -------------------- SIGNUP -------------------- */
+  /* -------------------- SIGNUP -------------------- */
+const handleSignup = async (e) => {
+  e.preventDefault();
 
-    const username = e.target.username.value.trim();
-    const password = e.target.password.value.trim();
-    const role = e.target.role.value;
+  const username = e.target.username.value;
+  const password = e.target.password.value;
+  const role = "student";
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    if (users.some((u) => u.username === username)) {
-      alert("User already exists!");
-      return;
-    }
-
-    const newUser = {
+  await fetch("http://localhost:8080/api/users", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
       username,
-      password,
-      role,
+      email: username + "@gmail.com",
+      password
+    })
+  });
+
+  alert("Account created! Please login.");
+  setIsSignup(false);
+};
+/* -------------------- SIGNUP -------------------- */
+const handleLogin = async (e) => {
+  e.preventDefault();
+
+  const username = e.target.username.value;
+  const password = e.target.password.value;
+
+  // Admin login
+  if (username === "admin" && password === "admin123") {
+    const adminUser = {
+      username: "admin",
+      role: "admin",
       joinedPrograms: []
     };
 
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
-
-    alert("Account created! Please login.");
-    setIsSignup(false);
-  };
-
-  /* -------------------- LOGIN -------------------- */
-  const handleLogin = (e) => {
-    e.preventDefault();
-
-    const username = e.target.username.value;
-    const password = e.target.password.value;
-
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-
-    const foundUser = users.find(
-      (u) => u.username === username && u.password === password
-    );
-
-    if (!foundUser) {
-      alert("Incorrect username or password!");
-      return;
-    }
-
-    setCurrentUser(foundUser);
-    localStorage.setItem("currentUser", JSON.stringify(foundUser));
+    setCurrentUser(adminUser);
+    localStorage.setItem("currentUser", JSON.stringify(adminUser));
     setActiveSection("home");
+    return;
+  }
+
+  // Student login
+  const res = await fetch("http://localhost:8080/api/users");
+  const users = await res.json();
+
+  const foundUser = users.find(
+    (u) => u.username === username && u.password === password
+  );
+
+  if (!foundUser) {
+    alert("Incorrect username or password!");
+    return;
+  }
+
+  const studentUser = {
+    ...foundUser,
+    role: "student",
+    joinedPrograms: []
   };
+
+  setCurrentUser(studentUser);
+  localStorage.setItem("currentUser", JSON.stringify(studentUser));
+  setActiveSection("home");
+};
 
   const logout = () => {
     setCurrentUser(null);
@@ -282,11 +308,7 @@ function App() {
                 {/* <button onClick={() => setActiveSection("quiz")}>Wellness Quiz</button> */}
               </>
             )}
-      {/*currentUser && activeSection === "quiz" && currentUser.role === "student" && (
-  <section className="quiz-page">
-    <QuizComponent />
-  </section>
-)*/}
+     
             {/* ADMIN ONLY NAV */}
             {currentUser.role === "admin" && (
               <>
@@ -318,15 +340,22 @@ function App() {
                 <input name="username" type="text" required />
 
                 <label>Password</label>
-                <input name="password" type="password" required />
+                <input
+  name="password"
+  type="password"
+  required
+  onChange={(e) => checkPasswordStrength(e.target.value)}
+/>
+<p className="password-strength">
+  Password strength: {passwordStrength}
+</p>
 
                 {isSignup && (
                   <>
                     <label>Role</label>
                     <select name="role">
-                      <option value="student">Student</option>
-                      <option value="admin">Admin</option>
-                    </select>
+  <option value="student">Student</option>
+</select>
                   </>
                 )}
 
@@ -443,7 +472,7 @@ function App() {
           <p>Games Coming soon!!</p>
           <br />
           
-          {/*<button onClick={() => setActiveSection("maze")}>🧩 Maze Game</button>
+          <button onClick={() => setActiveSection("maze")}>🧩 Maze Game</button>
           <br />
           <br />
           <button onClick={() => setActiveSection("dino")}>🦖 Dino Runner</button>
@@ -451,7 +480,7 @@ function App() {
           <br />
           <button onClick={() => setActiveSection("tictactoe")}>
             ⭕ Tic Tac Toe ❌
-          </button>*/}
+          </button>
         </section>
       )}
 
@@ -498,50 +527,16 @@ function App() {
       {/* CHAT AI (STUDENT) */}
 {currentUser && currentUser.role === "student" && activeSection === "chat" && (
   <section className="chat-ai-container">
-    <div className="chat-ai-hero">
-      <h2>
-        <FaRobot /> Wellness AI Companion
-      </h2>
-      <p>Your personal mental wellness assistant 🤖💚</p>
-    </div>
+  <div className="chat-ai-hero">
+    <h2>
+      <FaRobot /> Wellness AI Companion
+    </h2>
+    <p>Your personal mental wellness assistant 🤖💚</p>
+  </div>
 
-    <div id="chatBox">
-      <div id="chatMessages">
-        <div className="msg bot">
-          Hi 👋 I’m your Wellness AI. How are you feeling today?
-        </div>
-        <div className="msg user">
-          I feel stressed about exams.
-        </div>
-        <div className="msg bot">
-          That’s completely okay 💚 Exams can feel overwhelming.  
-          Try taking 3 deep breaths right now 🌿
-        </div>
-        <div className="msg user">
-          That helped a little.
-        </div>
-        <div className="msg bot">
-          I’m glad 😊  
-          Would you like a quick breathing exercise or a study tip?
-        </div>
-      </div>
-
-      <input
-        type="text"
-        placeholder="Type your message..."
-        style={{
-          width: "100%",
-          marginTop: "10px",
-          padding: "10px",
-          borderRadius: "10px",
-          border: "1px solid #ccc"
-        }}
-        disabled
-      />
-    </div>
-  </section>
+  <div id="noupe-chat-container"></div>
+</section>
 )}
-
 
       {/* ADMIN FEEDBACKS */}
       {currentUser && currentUser.role === "admin" && activeSection === "feedbacks" && (
@@ -654,6 +649,9 @@ function App() {
           </div>
         </section>
       )}
+      <footer className="app-footer">
+  © 2026 Mental Vision – Digital Wellness Platform. All Rights Reserved.
+</footer>
     </div>
   );
 }
