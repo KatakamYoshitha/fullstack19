@@ -124,7 +124,16 @@ function App() {
     document.body.appendChild(script);
   }
 }, [activeSection]);
-
+useEffect(() => {
+  fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/articles")
+    .then(res => res.json())
+    .then(data => setArticles(data));
+}, []);
+useEffect(() => {
+  fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/programs")
+    .then(res => res.json())
+    .then(data => setPrograms(data));
+}, []);
   /* -------------------- SIGNUP -------------------- */
   /* -------------------- SIGNUP -------------------- */
   /* -------------------- SIGNUP -------------------- */
@@ -135,7 +144,7 @@ const handleSignup = async (e) => {
   const password = e.target.password.value;
   const role = "student";
 
-  await fetch("http://localhost:8080/api/users", {
+  await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/users", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -172,7 +181,7 @@ const handleLogin = async (e) => {
   }
 
   // Student login
-  const res = await fetch("http://localhost:8080/api/users");
+  const res = await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/users");
   const users = await res.json();
 
   const foundUser = users.find(
@@ -227,24 +236,39 @@ const handleLogin = async (e) => {
   };
 
   /* -------------------- SUPPORT (STUDENT) -------------------- */
-  const handleSupport = (e) => {
-    e.preventDefault();
-    const msg = e.target.supportMessage.value;
+   const handleSupport = async (e) => {
+  e.preventDefault();
 
-    const newReq = {
-      user: currentUser.username,
-      message: msg,
-      status: "pending",
-      reply: "",
-      time: new Date().toLocaleString()
-    };
+  const msg = e.target.supportMessage.value;
 
-    updateFeedbacks([...feedbacks, newReq]);
-    setDummySupportCount((c) => c + 1); // only for metrics count
-    alert("Your feedback was submitted!");
+  try {
+    const res = await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/feedback", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: currentUser.username,
+        message: msg,
+        status: "pending",
+        reply: ""
+      })
+    });
+
+    if (!res.ok) throw new Error("Failed");
+
+    const newFeedback = await res.json();
+
+    setFeedbacks([...feedbacks, newFeedback]);
+
+    alert("Feedback submitted successfully!");
     e.target.reset();
-  };
-
+  } catch (err) {
+    console.error(err);
+    alert("Error submitting feedback");
+  }
+};
+ 
   /* -------------------- ADMIN ADDING -------------------- */
   const addResource = (e) => {
     e.preventDefault();
@@ -256,33 +280,54 @@ const handleLogin = async (e) => {
     setResources([...resources, newRes]);
     e.target.reset();
   };
-
+useEffect(() => {
+  fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/feedback")
+    .then(res => res.json())
+    .then(data => setFeedbacks(data));
+}, []);
   const addProgram = (e) => {
-    e.preventDefault();
-    const newProg = {
-      name: e.target.programName.value,
-      start: e.target.startDate.value,
-      description: e.target.programDesc.value
-    };
-    setPrograms([...programs, newProg]);
-    e.target.reset();
+  e.preventDefault();
+  const newProg = {
+    name: e.target.programName.value,
+    start: e.target.startDate.value,
+    description: e.target.programDesc.value
   };
+  setPrograms([...programs, newProg]);
+  e.target.reset();
+};
 
-  const addArticle = (e) => {
-    e.preventDefault();
+const addArticle = async (e) => {
+  e.preventDefault();
 
-    const newA = {
-      title: e.target.articleTitle.value,
-      content: e.target.articleContent.value,
-      link: e.target.articleLink.value
-    };
+  try {
+    const res = await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/articles", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        title: e.target.articleTitle.value,
+        content: e.target.articleContent.value,
+        link: e.target.articleLink.value
+      })
+    });
 
-    const updated = [...articles, newA];
-    setArticles(updated);
-    localStorage.setItem("articles", JSON.stringify(updated));
+    if (!res.ok) {
+      throw new Error("Publish failed");
+    }
+
+    const newArticle = await res.json();
+
+    setArticles([...articles, newArticle]);
+
+    alert("Article published!");
     e.target.reset();
-  };
 
+  } catch (err) {
+    console.error(err);
+    alert("Error publishing article");
+  }
+};
   /* -------------------- UI -------------------- */
   return (
     <div>
@@ -424,26 +469,38 @@ const handleLogin = async (e) => {
 
       {/* ARTICLES */}
       {currentUser && activeSection === "articles" && (
-        <section>
-          <h2 className="page-title">
-            <FaBookOpen /> Wellness Articles
-          </h2>
+  <section>
+    <h2 className="page-title">
+      <FaBookOpen /> Wellness Articles
+    </h2>
 
-          {articles.map((a, i) => (
-            <div key={i} className="card">
-              <h3>{a.title}</h3>
-              <p>{a.content}</p>
+    {articles.map((a, i) => (
+      <div key={i} className="card">
+        <h3>{a.title}</h3>
+        <p>{a.content}</p>
 
-              <button
-                onClick={() => window.open(a.link, "_blank")}
-                className="read-btn"
-              >
-                Read Article
-              </button>
-            </div>
-          ))}
-        </section>
-      )}
+        {currentUser.role === "admin" && (
+  <button
+    className="danger-btn"
+    onClick={() => {
+      const updated = articles.filter((_, index) => index !== i);
+      setArticles(updated);
+    }}
+  >
+    Delete ❌
+  </button>
+)}
+
+        <button
+          onClick={() => window.open(a.link, "_blank")}
+          className="read-btn"
+        >
+          Read Article
+        </button>
+      </div>
+    ))}
+  </section>
+)}
 
       {/* PROGRESS (STUDENT ONLY) */}
       {currentUser && currentUser.role === "student" && activeSection === "progress" && (
@@ -518,7 +575,9 @@ const handleLogin = async (e) => {
               required
               placeholder="Describe your concern..."
             />
-            <button type="submit">Submit</button>
+            <button type="submit" style={{cursor:"pointer"}}>
+  Submit
+</button>
           </form>
         </section>
       )}
@@ -548,28 +607,38 @@ const handleLogin = async (e) => {
           {feedbacks.map((req, index) => (
             <div key={index} className="card">
               <p>
-                <b>User:</b> {req.user}
+                <b>User:</b> {req.username}
               </p>
               <p>
                 <b>Message:</b> {req.message}
               </p>
-              <p>
-                <b>Time:</b> {req.time}
-              </p>
+             
               <p>
                 <b>Status:</b> {req.status}
               </p>
 
               <label>Reply:</label>
               <textarea
-                value={req.reply || ""}
-                onChange={(e) => {
-                  const updated = [...feedbacks];
-                  updated[index].reply = e.target.value;
-                  updateFeedbacks(updated);
-                }}
-                placeholder="Type your reply..."
-              />
+  value={req.reply || ""}
+  onChange={async (e) => {
+    const newReply = e.target.value;
+
+    const updated = [...feedbacks];
+    updated[index].reply = newReply;
+    updateFeedbacks(updated);
+
+    await fetch(`https://fullstack19-springboot-backend-production.up.railway.app/api/feedback/${req.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ...req,
+        reply: newReply
+      })
+    });
+  }}
+/>
 
               <button
                 onClick={() => {
