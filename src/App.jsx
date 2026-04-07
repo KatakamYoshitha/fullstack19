@@ -125,12 +125,12 @@ function App() {
   }
 }, [activeSection]);
 useEffect(() => {
-  fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/articles")
+  fetch(" http://localhost:8080/api/articles")
     .then(res => res.json())
     .then(data => setArticles(data));
 }, []);
 useEffect(() => {
-  fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/programs")
+  fetch("http://localhost:8080/api/programs")
     .then(res => res.json())
     .then(data => setPrograms(data));
 }, []);
@@ -144,7 +144,7 @@ const handleSignup = async (e) => {
   const password = e.target.password.value;
   const role = "student";
 
-  await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/users", {
+  await fetch("http://localhost:8080/api/users", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -181,7 +181,7 @@ const handleLogin = async (e) => {
   }
 
   // Student login
-  const res = await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/users");
+  const res = await fetch("http://localhost:8080/api/users");
   const users = await res.json();
 
   const foundUser = users.find(
@@ -236,30 +236,35 @@ const handleLogin = async (e) => {
   };
 
   /* -------------------- SUPPORT (STUDENT) -------------------- */
-   const handleSupport = async (e) => {
+ const handleSupport = async (e) => {
   e.preventDefault();
 
   const msg = e.target.supportMessage.value;
 
   try {
-    const res = await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/feedback", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        username: currentUser.username,
-        message: msg,
-        status: "pending",
-        reply: ""
-      })
-    });
+    const res = await fetch(
+      "http://localhost:8080/api/feedback",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          username: currentUser.username,
+          message: msg,
+          status: "pending",
+          reply: ""
+        })
+      }
+    );
 
-    if (!res.ok) throw new Error("Failed");
+    if (!res.ok) {
+      throw new Error("Failed");
+    }
 
-    const newFeedback = await res.json();
+    const data = await res.json();
 
-    setFeedbacks([...feedbacks, newFeedback]);
+    setFeedbacks([...feedbacks, data]);
 
     alert("Feedback submitted successfully!");
     e.target.reset();
@@ -268,7 +273,6 @@ const handleLogin = async (e) => {
     alert("Error submitting feedback");
   }
 };
- 
   /* -------------------- ADMIN ADDING -------------------- */
   const addResource = (e) => {
     e.preventDefault();
@@ -281,7 +285,7 @@ const handleLogin = async (e) => {
     e.target.reset();
   };
 useEffect(() => {
-  fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/feedback")
+  fetch("http://localhost:8080/api/feedback")
     .then(res => res.json())
     .then(data => setFeedbacks(data));
 }, []);
@@ -299,33 +303,69 @@ useEffect(() => {
 const addArticle = async (e) => {
   e.preventDefault();
 
+  const article = {
+    title: e.target.articleTitle.value,
+    content: e.target.articleContent.value,
+    link: e.target.articleLink.value
+  };
+
   try {
-    const res = await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/articles", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        title: e.target.articleTitle.value,
-        content: e.target.articleContent.value,
-        link: e.target.articleLink.value
-      })
-    });
+    const res = await fetch(
+      "http://localhost:8080/api/articles",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(article)
+      }
+    );
 
-    if (!res.ok) {
-      throw new Error("Publish failed");
-    }
+    if (!res.ok) throw new Error("Failed");
 
-    const newArticle = await res.json();
+    const saved = await res.json();
 
-    setArticles([...articles, newArticle]);
+    setArticles([...articles, saved]);
 
     alert("Article published!");
     e.target.reset();
-
   } catch (err) {
     console.error(err);
     alert("Error publishing article");
+  }
+};
+const deleteArticle = async (id) => {
+  try {
+    const res = await fetch(
+      `http://localhost:8080/api/articles/${id}`,
+      { method: "DELETE" }
+    );
+
+    if (!res.ok) throw new Error("Delete failed");
+
+    setArticles(articles.filter(a => a.id !== id));
+
+    alert("Article deleted successfully!");
+  } catch (err) {
+    console.error(err);
+    alert("Error deleting article");
+  }
+};
+const deleteFeedback = async (id) => {
+  try {
+    const res = await fetch(
+      `http://localhost:8080/api/feedback/${id}`,
+      { method: "DELETE" }
+    );
+
+    if (!res.ok) throw new Error("Delete failed");
+
+    setFeedbacks(feedbacks.filter(f => f.id !== id));
+
+    alert("Feedback deleted!");
+  } catch (err) {
+    console.error(err);
+    alert("Error deleting feedback");
   }
 };
   /* -------------------- UI -------------------- */
@@ -482,10 +522,7 @@ const addArticle = async (e) => {
         {currentUser.role === "admin" && (
   <button
     className="danger-btn"
-    onClick={() => {
-      const updated = articles.filter((_, index) => index !== i);
-      setArticles(updated);
-    }}
+    onClick={() => deleteArticle(a.id)}
   >
     Delete ❌
   </button>
@@ -627,7 +664,7 @@ const addArticle = async (e) => {
     updated[index].reply = newReply;
     updateFeedbacks(updated);
 
-    await fetch(`https://fullstack19-springboot-backend-production.up.railway.app/api/feedback/${req.id}`, {
+    await fetch(`http://localhost:8080/api/feedback/${req.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -651,14 +688,11 @@ const addArticle = async (e) => {
               </button>
 
               <button
-                className="danger-btn"
-                 onClick={() => {
-                  const updated = feedbacks.filter((_, i) => i !== index);
-                  updateFeedbacks(updated);
-                }}
-              >
-                Delete ❌
-              </button>
+  className="danger-btn"
+  onClick={() => deleteFeedback(req.id)}
+>
+  Delete ❌
+</button>
             </div>
           ))}
         </section>
