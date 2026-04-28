@@ -125,12 +125,12 @@ function App() {
   }
 }, [activeSection]);
 useEffect(() => {
-  fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/articles")
+  fetch("https://fullstack19-springboot-backend-production-7383.up.railway.app/api/articles")
     .then(res => res.json())
     .then(data => setArticles(data));
 }, []);
 useEffect(() => {
-  fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/programs")
+  fetch("https://fullstack19-springboot-backend-production-7383.up.railway.app/api/programs")
     .then(res => res.json())
     .then(data => setPrograms(data));
 }, []);
@@ -144,7 +144,7 @@ const handleSignup = async (e) => {
   const password = e.target.password.value;
   const role = "student";
 
-  await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/users", {
+  await fetch("https://fullstack19-springboot-backend-production-7383.up.railway.app/api/users", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -181,7 +181,7 @@ const handleLogin = async (e) => {
   }
 
   // Student login
-  const res = await fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/users");
+  const res = await fetch("https://fullstack19-springboot-backend-production-7383.up.railway.app/api/users");
   const users = await res.json();
 
   const foundUser = users.find(
@@ -243,7 +243,7 @@ const handleLogin = async (e) => {
 
   try {
     const res = await fetch(
-      "https://fullstack19-springboot-backend-production.up.railway.app/api/feedback",
+      "https://fullstack19-springboot-backend-production-7383.up.railway.app/api/feedback",
       {
         method: "POST",
         headers: {
@@ -285,7 +285,7 @@ const handleLogin = async (e) => {
     e.target.reset();
   };
 useEffect(() => {
-  fetch("https://fullstack19-springboot-backend-production.up.railway.app/api/feedback")
+  fetch("https://fullstack19-springboot-backend-production-7383.up.railway.app/api/feedback")
     .then(res => res.json())
     .then(data => setFeedbacks(data));
 }, []);
@@ -311,7 +311,7 @@ const addArticle = async (e) => {
 
   try {
     const res = await fetch(
-      "https://fullstack19-springboot-backend-production.up.railway.app/api/articles",
+      "https://fullstack19-springboot-backend-production-7383.up.railway.app/api/articles",
       {
         method: "POST",
         headers: {
@@ -337,7 +337,7 @@ const addArticle = async (e) => {
 const deleteArticle = async (id) => {
   try {
     const res = await fetch(
-      `https://fullstack19-springboot-backend-production.up.railway.app/api/articles/${id}`,
+      `https://fullstack19-springboot-backend-production-7383.up.railway.app/api/articles/${id}`,
       { method: "DELETE" }
     );
 
@@ -354,7 +354,7 @@ const deleteArticle = async (id) => {
 const deleteFeedback = async (id) => {
   try {
     const res = await fetch(
-      `http://localhost:8080/api/feedback/${id}`,
+      `https://fullstack19-springboot-backend-production-7383.up.railway.app/api/feedback/${id}`,
       { method: "DELETE" }
     );
 
@@ -664,7 +664,7 @@ const deleteFeedback = async (id) => {
     updated[index].reply = newReply;
     updateFeedbacks(updated);
 
-    await fetch(`http://localhost:8080/api/feedback/${req.id}`, {
+    await fetch(`https://fullstack19-springboot-backend-production-7383.up.railway.app/api/feedback/${req.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
