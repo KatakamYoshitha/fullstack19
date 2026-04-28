@@ -166,7 +166,7 @@ const handleLogin = async (e) => {
   const username = e.target.username.value;
   const password = e.target.password.value;
 
-  // Admin login (optional)
+  // Admin login
   if (username === "admin" && password === "admin123") {
     const adminUser = {
       username: "admin",
@@ -180,31 +180,36 @@ const handleLogin = async (e) => {
     return;
   }
 
-  try {
-    const res = await fetch(
-      "https://fullstack19-springboot-backend-production-7383.up.railway.app/api/users"
-    );
+  // Student login
+  const res = await fetch("https://fullstack19-springboot-backend-production-7383.up.railway.app/api/users");
+  const users = await res.json();
 
-    const users = await res.json();
+  const foundUser = users.find(
+    (u) => u.username === username && u.password === password
+  );
 
-    const foundUser = users.find(
-      (u) => u.username === username && u.password === password
-    );
-
-    if (!foundUser) {
-      alert("Incorrect username or password!");
-      return;
-    }
-
-    setCurrentUser(foundUser);
-    localStorage.setItem("currentUser", JSON.stringify(foundUser));
-    setActiveSection("home");
-
-  } catch (err) {
-    console.error(err);
-    alert("Error connecting to server");
+  if (!foundUser) {
+    alert("Incorrect username or password!");
+    return;
   }
+
+  const studentUser = {
+    ...foundUser,
+    role: "student",
+    joinedPrograms: []
+  };
+
+  setCurrentUser(studentUser);
+  localStorage.setItem("currentUser", JSON.stringify(studentUser));
+  setActiveSection("home");
 };
+
+  const logout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem("currentUser");
+    setActiveSection("login");
+  };
+
 
     const user = {
       username,
@@ -212,15 +217,6 @@ const handleLogin = async (e) => {
       joinedPrograms: []
     };
 
-    setCurrentUser(user);
-    localStorage.setItem("currentUser", JSON.stringify(user));
-    setActiveSection("home");
-
-  } catch (err) {
-    console.error(err);
-    alert("Login failed - check console");
-  }
-};
   /* -------------------- PROGRAMS -------------------- */
   const joinProgram = (index) => {
     const prog = programs[index];
