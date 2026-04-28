@@ -124,7 +124,11 @@ useEffect(() => {
 useEffect(() => {
   fetch("https://fullstack19-springboot-backend-production-7383.up.railway.app/api/programs")
     .then(res => res.json())
-    .then(data => setPrograms(data));
+    .then(data => {
+  if (data.length > 0) {
+    setPrograms(data);
+  }
+});
 }, []);
   /* -------------------- SIGNUP -------------------- */
   /* -------------------- SIGNUP -------------------- */
@@ -281,17 +285,39 @@ useEffect(() => {
     .then(res => res.json())
     .then(data => setFeedbacks(data));
 }, []);
-  const addProgram = (e) => {
+  const addProgram = async (e) => {
   e.preventDefault();
+
   const newProg = {
     name: e.target.programName.value,
     start: e.target.startDate.value,
     description: e.target.programDesc.value
   };
-  setPrograms([...programs, newProg]);
-  e.target.reset();
-};
 
+  try {
+    const res = await fetch(
+      "https://fullstack19-springboot-backend-production-7383.up.railway.app/api/programs",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newProg)
+      }
+    );
+
+    const saved = await res.json();
+
+    setPrograms((prev) => [...prev, saved]); // IMPORTANT
+
+    alert("Session added!");
+    e.target.reset();
+
+  } catch (err) {
+    console.error(err);
+    alert("Error adding session");
+  }
+};
 const addArticle = async (e) => {
   e.preventDefault();
 
