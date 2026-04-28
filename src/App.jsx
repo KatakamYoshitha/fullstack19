@@ -210,13 +210,6 @@ const handleLogin = async (e) => {
     setActiveSection("login");
   };
 
-
-    const user = {
-      username,
-      role: "student",
-      joinedPrograms: []
-    };
-
   /* -------------------- PROGRAMS -------------------- */
   const joinProgram = (index) => {
     const prog = programs[index];
