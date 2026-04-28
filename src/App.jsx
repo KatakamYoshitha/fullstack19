@@ -166,7 +166,7 @@ const handleLogin = async (e) => {
   const username = e.target.username.value;
   const password = e.target.password.value;
 
-  // Admin login
+  // Admin login (optional)
   if (username === "admin" && password === "admin123") {
     const adminUser = {
       username: "admin",
@@ -180,25 +180,31 @@ const handleLogin = async (e) => {
     return;
   }
 
-  // Student login
   try {
     const res = await fetch(
-      "https://fullstack19-springboot-backend-production-7383.up.railway.app/api/auth/login",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ username, password })
-      }
+      "https://fullstack19-springboot-backend-production-7383.up.railway.app/api/users"
     );
 
-    const result = await res.text();
+    const users = await res.json();
 
-    if (result !== "Login successful") {
+    const foundUser = users.find(
+      (u) => u.username === username && u.password === password
+    );
+
+    if (!foundUser) {
       alert("Incorrect username or password!");
       return;
     }
+
+    setCurrentUser(foundUser);
+    localStorage.setItem("currentUser", JSON.stringify(foundUser));
+    setActiveSection("home");
+
+  } catch (err) {
+    console.error(err);
+    alert("Error connecting to server");
+  }
+};
 
     const user = {
       username,
