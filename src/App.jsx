@@ -102,26 +102,18 @@ function App() {
   };
    
   /* -------------------- CHATBOT SCRIPT -------------------- */
-  useEffect(() => {
+ useEffect(() => {
   if (activeSection === "chat") {
-
     const container = document.getElementById("noupe-chat-container");
     if (!container) return;
 
-    const existing = document.getElementById("noupe-script");
-    if (existing) return;
-
-    // Tell Noupe to render inside this container
-    window.noupeConfig = {
-      target: "#noupe-chat-container"
-    };
+    container.innerHTML = ""; // clear old
 
     const script = document.createElement("script");
     script.src = "https://www.noupe.com/embed/019acec8c5da71fbb53af7c328bce7e1135e.js";
-    script.id = "noupe-script";
     script.async = true;
 
-    document.body.appendChild(script);
+    container.appendChild(script);
   }
 }, [activeSection]);
 useEffect(() => {
@@ -214,7 +206,7 @@ const handleLogin = async (e) => {
   const joinProgram = (index) => {
     const prog = programs[index];
 
-    if (!currentUser.joinedPrograms.some((p) =><h4>{p.name || p.session}</h4>)) {
+    if (!currentUser.joinedPrograms.some((p) =>p.name === prog.name)) {
       const updatedUser = {
         ...currentUser,
         joinedPrograms: [...currentUser.joinedPrograms, { ...prog, completed: false }]
