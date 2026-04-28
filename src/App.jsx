@@ -214,7 +214,7 @@ const handleLogin = async (e) => {
   const joinProgram = (index) => {
     const prog = programs[index];
 
-    if (!currentUser.joinedPrograms.some((p) => p.name === prog.name)) {
+    if (!currentUser.joinedPrograms.some((p) =><h4>{p.name || p.session}</h4>)) {
       const updatedUser = {
         ...currentUser,
         joinedPrograms: [...currentUser.joinedPrograms, { ...prog, completed: false }]
@@ -495,7 +495,7 @@ const deleteFeedback = async (id) => {
 
           {programs.map((p, i) => (
             <div key={i} className="card">
-              <h4>{p.name}</h4>
+             <h4>{p.name || p.session}</h4>
               <p>Date: {p.start}</p>
               <p>{p.description}</p>
 
@@ -548,7 +548,7 @@ const deleteFeedback = async (id) => {
 
           {currentUser.joinedPrograms.map((p, i) => (
             <div key={i} className="card">
-              <h4>{p.name}</h4>
+              <h4>{p.name || p.session}</h4>
               <p>Status: {p.completed ? "Completed ✔️" : "In Progress ⏳"}</p>
 
               {!p.completed && (
