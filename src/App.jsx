@@ -771,3 +771,4 @@ const deleteFeedback = async (id) => {
 }
 
 export default App;
+}
