@@ -181,17 +181,26 @@ const handleLogin = async (e) => {
   }
 
   // Student login
-  const res = await fetch("https://fullstack19-springboot-backend-production-7383.up.railway.app/api/users");
-  const users = await res.json();
-
-  const foundUser = users.find(
-    (u) => u.username === username && u.password === password
-  );
-
-  if (!foundUser) {
-    alert("Incorrect username or password!");
-    return;
+  const res = await fetch(
+  "https://fullstack19-springboot-backend-production-7383.up.railway.app/api/auth/login",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username,
+      password
+    })
   }
+);
+
+const result = await res.text();
+
+if (result !== "Login successful") {
+  alert("Incorrect username or password!");
+  return;
+}
 
   const studentUser = {
     ...foundUser,
