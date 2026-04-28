@@ -306,9 +306,11 @@ useEffect(() => {
       }
     );
 
+    if (!res.ok) throw new Error("Failed");
+
     const saved = await res.json();
 
-    setPrograms((prev) => [...prev, saved]); // IMPORTANT
+    setPrograms((prev) => [...prev, saved]);
 
     alert("Session added!");
     e.target.reset();
