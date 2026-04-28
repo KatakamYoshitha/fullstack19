@@ -102,12 +102,12 @@ function App() {
   };
    
   /* -------------------- CHATBOT SCRIPT -------------------- */
- useEffect(() => {
+useEffect(() => {
   if (activeSection === "chat") {
     const container = document.getElementById("noupe-chat-container");
     if (!container) return;
 
-    container.innerHTML = ""; // clear old
+    container.innerHTML = "";
 
     const script = document.createElement("script");
     script.src = "https://www.noupe.com/embed/019acec8c5da71fbb53af7c328bce7e1135e.js";
