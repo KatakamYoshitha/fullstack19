@@ -181,12 +181,6 @@ const handleLogin = async (e) => {
   }
 
   // Student login
- const handleLogin = async (e) => {
-  e.preventDefault();
-
-  const username = e.target.username.value;
-  const password = e.target.password.value;
-
   try {
     const res = await fetch(
       "https://fullstack19-springboot-backend-production-7383.up.railway.app/api/auth/login",
@@ -771,4 +765,4 @@ const deleteFeedback = async (id) => {
 }
 
 export default App;
-}
+
