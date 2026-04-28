@@ -181,44 +181,46 @@ const handleLogin = async (e) => {
   }
 
   // Student login
-  const res = await fetch(
-  "https://fullstack19-springboot-backend-production-7383.up.railway.app/api/auth/login",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
+ const handleLogin = async (e) => {
+  e.preventDefault();
+
+  const username = e.target.username.value;
+  const password = e.target.password.value;
+
+  try {
+    const res = await fetch(
+      "https://fullstack19-springboot-backend-production-7383.up.railway.app/api/auth/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ username, password })
+      }
+    );
+
+    const result = await res.text();
+
+    if (result !== "Login successful") {
+      alert("Incorrect username or password!");
+      return;
+    }
+
+    const user = {
       username,
-      password
-    })
+      role: "student",
+      joinedPrograms: []
+    };
+
+    setCurrentUser(user);
+    localStorage.setItem("currentUser", JSON.stringify(user));
+    setActiveSection("home");
+
+  } catch (err) {
+    console.error(err);
+    alert("Login failed - check console");
   }
-);
-
-const result = await res.text();
-
-if (result !== "Login successful") {
-  alert("Incorrect username or password!");
-  return;
-}
-
-  const studentUser = {
-    ...foundUser,
-    role: "student",
-    joinedPrograms: []
-  };
-
-  setCurrentUser(studentUser);
-  localStorage.setItem("currentUser", JSON.stringify(studentUser));
-  setActiveSection("home");
 };
-
-  const logout = () => {
-    setCurrentUser(null);
-    localStorage.removeItem("currentUser");
-    setActiveSection("login");
-  };
-
   /* -------------------- PROGRAMS -------------------- */
   const joinProgram = (index) => {
     const prog = programs[index];
