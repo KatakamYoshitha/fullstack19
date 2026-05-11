@@ -1,3 +1,5 @@
 Student Wellness Application is a frontend-only web application built using React that focuses on promoting student mental health and well-being. The application provides an interactive wellness quiz, visual progress tracking through charts, and a structured admin panel for managing content. It also includes a dedicated games section as a placeholder for future stress-relief activities.
 
 The project is designed without a backend and uses localStorage to simulate user data and progress, making it simple, lightweight, and easy to understand. This application demonstrates clean UI design, component-based architecture, and effective state management in React.
+
+Backend: https://github.com/KatakamYoshitha/fullstack19-springboot-backend
